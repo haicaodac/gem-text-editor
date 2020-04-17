@@ -35,7 +35,7 @@ You can start with a basic template
 </script>
 ```
 
-#### Init Settings
+### Init Settings
 
 You need to add an **init** attribute that includes the definition
 ```html
