@@ -2,6 +2,7 @@
 
 A vue package makes it easy to create and edit the best editor.
 
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 ## Installation
 
