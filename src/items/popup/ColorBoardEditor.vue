@@ -8,38 +8,24 @@
         :data-color="color.color_code"
         :style="{ background: color.color_code }"
         :class="[color.status ? 'gte_active' : '']"
+        :title="color.color_code"
         @click="setColor(color)"
       >
         <span class="gte_popup_color-outline" />
         <span class="gte_popup_color-check">
-          <svg
-            v-if="color.color_code != 'clear_color'"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fas"
-            data-icon="check"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
-            class="svg-inline--fa fa-check fa-w-16"
-          >
-            <path
-              fill="currentColor"
-              d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"
-              class
-            />
-          </svg>
-          <svg
-            v-else
-            style="display: block;"
-            class="fr-svg"
-            focusable="false"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15,10v8H9v-8H15 M14,4H9.9l-1,1H6v2h12V5h-3L14,4z M17,8H7v10c0,1.1,0.9,2,2,2h6c1.1,0,2-0.9,2-2V8z"
-            />
+          <svg v-if="color.color_code == 'Clear Color'" viewBox="0 0 512 512">
+            <g class="fa-group">
+              <path
+                fill="currentColor"
+                d="M512 428v40a12 12 0 0 1-12 12H144a48 48 0 0 1-33.94-14.06l-96-96a48 48 0 0 1 0-67.88l136-136 227.88 227.88L355.88 416H500a12 12 0 0 1 12 12z"
+                class="fa-secondary"
+              />
+              <path
+                fill="currentColor"
+                d="M377.94 393.94l120-120a48 48 0 0 0 0-67.88l-160-160a48 48 0 0 0-67.88 0l-120 120 45.25 45.25z"
+                class="fa-primary"
+              />
+            </g>
           </svg>
         </span>
       </span>
@@ -164,7 +150,7 @@ export default {
           status: false
         },
         {
-          color_code: "clear_color",
+          color_code: "Clear Color",
           status: false
         }
       ]
@@ -210,31 +196,27 @@ export default {
   methods: {
     checkClosePopup() {
       let $target = event.target;
-      if ($target && $target.closest(".gte_popup_color")) {
+      console.log("$target: ", $target);
+      if (
+        $target &&
+        ($target.closest(".gte_popup_color") ||
+          $target.closest('[data-type="color"]'))
+      ) {
         return;
       }
       this.$emit("close");
     },
     setColor(color) {
-      if (color.color_code != "clear_color") {
-        if (!color.status) {
-          this.code_colors.map(function(item) {
-            if (item.color_code == color.color_code) {
-              item.status = true;
-            } else {
-              item.status = false;
-            }
-            return item;
-          });
-          this.$emit("setColorTextBoard", color);
-        }
-      } else {
-        this.code_colors.map(function(item) {
-          item.status = false;
-          return item;
-        });
-        this.$emit("clearColorTextBoard", color.color_code);
+      let newColor = "";
+      let $editor = document.querySelector(".gte_editor_content");
+      if ($editor) {
+        const style = getComputedStyle($editor);
+        newColor = style.color;
       }
+      if (color.color_code != "Clear Color") {
+        newColor = color.color_code;
+      }
+      this.$emit("setColorTextBoard", newColor);
     }
   }
 };
@@ -282,6 +264,7 @@ export default {
     flex-flow: row wrap;
     -ms-flex-pack: distribute;
     justify-content: space-around;
+    cursor: default;
     .gte_popup_color-select-color.gte_active {
       .gte_popup_color-check {
         svg {
@@ -301,16 +284,19 @@ export default {
       width: 25px;
       height: 25px;
       position: relative;
+      cursor: pointer;
+
       .gte_popup_color-check {
+        width: 25px;
+        height: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         svg {
-          color: #fff;
-          width: 15px;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
-          display: none;
+          .fa-secondary {
+            fill: currentColor;
+            opacity: 0.4;
+          }
         }
       }
     }

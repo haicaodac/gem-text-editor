@@ -1,11 +1,11 @@
 // Import vue component
-import component from '@/text-editor.vue';
+import component from '@/gem-text-editor.vue';
 
 // install function executed by Vue.use()
-const install = function installTextEditor(Vue) {
+const install = function installGemTextEditor(Vue) {
   if (install.installed) return;
   install.installed = true;
-  Vue.component('TextEditor', component);
+  Vue.component('GemTextEditor', component);
 };
 
 // Create module definition for Vue.use()

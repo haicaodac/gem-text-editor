@@ -30,7 +30,7 @@ export default {
   methods: {
     getStatusActive() {
       let $target = event.target;
-      if ($target && $target.closest(".gt_text_editor_content")) {
+      if ($target && $target.closest(".gte_editor_content")) {
         if (document.queryCommandState("underline")) {
           this.active = true;
           return;

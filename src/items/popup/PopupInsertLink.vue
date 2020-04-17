@@ -9,17 +9,42 @@
         <label>Text</label>
         <input class="gte_input" type="text" v-model="valTitle" />
       </div>
-      <div class="gte_popup_link_form-group">
-        <label>Title</label>
-        <input class="gte_input" type="text" v-model="valTitle" />
-      </div>
-      <div class="gte_popup_link_form-group">
-        <label>Open link in...</label>
-        <select v-model="valTarget" class="gte_input">
-          <option value>Current window</option>
-          <option value="_blank">New window</option>
-        </select>
-      </div>
+      <template v-if="!showAdvanced">
+        <span class="gte_popup_link_advanced" @click="showAdvanced = true">
+          <svg viewBox="0 0 384 512">
+            <path
+              fill="currentColor"
+              d="M376 232H216V72c0-4.42-3.58-8-8-8h-32c-4.42 0-8 3.58-8 8v160H8c-4.42 0-8 3.58-8 8v32c0 4.42 3.58 8 8 8h160v160c0 4.42 3.58 8 8 8h32c4.42 0 8-3.58 8-8V280h160c4.42 0 8-3.58 8-8v-32c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+          Advanced Settings
+        </span>
+      </template>
+      <template v-if="showAdvanced">
+        <span class="gte_popup_link_advanced" @click="showAdvanced = false">
+          <svg viewBox="0 0 384 512">
+            <path
+              fill="currentColor"
+              d="M376 232H8c-4.42 0-8 3.58-8 8v32c0 4.42 3.58 8 8 8h368c4.42 0 8-3.58 8-8v-32c0-4.42-3.58-8-8-8z"
+              class
+            />
+          </svg>
+          Advanced Settings
+        </span>
+      </template>
+      <template v-if="showAdvanced">
+        <div class="gte_popup_link_form-group">
+          <label>Title</label>
+          <input class="gte_input" type="text" v-model="valTitle" />
+        </div>
+        <div class="gte_popup_link_form-group">
+          <label>Open link in...</label>
+          <select v-model="valTarget" class="gte_input">
+            <option value>Current window</option>
+            <option value="_blank">New window</option>
+          </select>
+        </div>
+      </template>
       <div class="gte_popup_link_list_button">
         <button
           type="button"
@@ -60,7 +85,8 @@ export default {
       valUrl: "",
       valTitle: "",
       valTarget: "",
-      valText: ""
+      valText: "",
+      showAdvanced: false
     };
   },
   mounted() {
@@ -77,7 +103,11 @@ export default {
   methods: {
     checkClosePopup() {
       let $target = event.target;
-      if ($target && $target.closest(".gte_popup_link")) {
+      if (
+        $target &&
+        ($target.closest(".gte_popup_link") ||
+          $target.closest('[data-type="link"]'))
+      ) {
         return;
       }
       this.$emit("close");
@@ -110,6 +140,7 @@ export default {
   width: 240px;
   box-shadow: 0px 7px 64px rgba(0, 0, 0, 0.15);
   padding: 16px 24px;
+  cursor: default;
   &::after {
     content: "";
     position: absolute;
@@ -122,8 +153,24 @@ export default {
     border-left: 8px solid transparent;
     border-top: 8px solid transparent;
   }
+  .gte_popup_link_advanced {
+    display: flex;
+    align-items: center;
+    // justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 6px;
+    svg {
+      height: 0.9em !important;
+      margin-right: 0.2rem;
+    }
+    &:hover {
+      color: #3e50af;
+    }
+  }
   .gte_popup_link_form-group {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     label {
       font-size: 13px;
       color: #43484b;

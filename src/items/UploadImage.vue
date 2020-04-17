@@ -4,7 +4,7 @@
       type="button"
       class="gte_btn gte_item-btn gte_editor_insert_image"
       :class="{'gte_active': statusShowPopup}"
-      @click.stop.prevent="showPopup()"
+      @click="showPopup()"
     >
       <svg viewBox="0 0 512 512">
         <path
@@ -17,7 +17,7 @@
     <PopupUploadImage
       v-if="statusShowPopup"
       :valueUrl="valUrl"
-      @submitFormInsertLink="submitForm"
+      @uploadImage="submitForm"
       @close="closePopup"
     />
   </div>
@@ -48,10 +48,10 @@ export default {
   methods: {
     submitForm(data) {
       let $el = document.querySelector(".gte_editor_insert_image");
-      this.$emit("submitFormInsertImage", {
-        type: "createLink",
+      this.$emit("statusFormatText", {
+        type: "uploadImage",
         $el: $el,
-        value: data.url
+        files: data.files
       });
       this.statusShowPopup = false;
     },

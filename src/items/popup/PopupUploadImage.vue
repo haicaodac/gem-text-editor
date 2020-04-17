@@ -1,6 +1,6 @@
 <template>
   <div class="gte_popup_image">
-    <form method="POST" action @submit="submit">
+    <form method="POST" action @submit.stop.prevent="submit">
       <div class="gte_popup_image_form-group">
         <div class="gte_popup_image-theme-dragdropbox">
           <input
@@ -24,7 +24,7 @@
             class="gte_popup_image-preview-image"
             :class="{'gte_popup_image-preview-image-multi': files.length >= 2}"
           >
-            <img v-for="file in files" :key="file" :src="file" />
+            <img v-for="file in files" :key="file" :src="file.src" :title="file.name" />
           </div>
         </div>
         <span
@@ -74,7 +74,11 @@ export default {
   methods: {
     checkClosePopup() {
       let $target = event.target;
-      if ($target && $target.closest(".gte_popup_image")) {
+      if (
+        $target &&
+        ($target.closest(".gte_popup_image") ||
+          $target.closest('[data-type="image"]'))
+      ) {
         return;
       }
       this.$emit("close");
@@ -89,7 +93,10 @@ export default {
           this.valFiles.push(file);
           var reader = new FileReader();
           reader.onload = e => {
-            this.files.push(e.target.result);
+            this.files.push({
+              src: e.target.result,
+              name: file.name
+            });
           };
           reader.readAsDataURL(file);
         }
@@ -105,15 +112,11 @@ export default {
 
       this.$emit("close");
     },
-    submit() {
-      event.preventDefault();
+    submit(event) {
       var data = {
-        url: this.valUrl,
         files: this.valFiles
       };
-      console.log("data: ", data);
-      this.$emit("submitFormInsertImage", data);
-      return false;
+      this.$emit("uploadImage", data);
     }
   }
 };

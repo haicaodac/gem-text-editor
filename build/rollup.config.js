@@ -6,7 +6,9 @@ import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import babel from 'rollup-plugin-babel';
-import { terser } from 'rollup-plugin-terser';
+import {
+  terser
+} from 'rollup-plugin-terser';
 import minimist from 'minimist';
 
 // Get browserslist config and remove ie from es build targets
@@ -69,7 +71,7 @@ if (!argv.format || argv.format === 'es') {
     ...baseConfig,
     external,
     output: {
-      file: 'dist/text-editor.esm.js',
+      file: 'dist/gem-text-editor.esm.js',
       format: 'esm',
       exports: 'named',
     },
@@ -99,7 +101,7 @@ if (!argv.format || argv.format === 'cjs') {
     external,
     output: {
       compact: true,
-      file: 'dist/text-editor.ssr.js',
+      file: 'dist/gem-text-editor.ssr.js',
       format: 'cjs',
       name: 'TextEditor',
       exports: 'named',
@@ -127,7 +129,7 @@ if (!argv.format || argv.format === 'iife') {
     external,
     output: {
       compact: true,
-      file: 'dist/text-editor.min.js',
+      file: 'dist/gem-text-editor.min.js',
       format: 'iife',
       name: 'TextEditor',
       exports: 'named',

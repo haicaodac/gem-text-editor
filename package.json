@@ -1,11 +1,10 @@
 {
-  "name": "text-editor",
+  "name": "gem-text-editor",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/text-editor.ssr.js",
-  "browser": "dist/text-editor.esm.js",
-  "module": "dist/text-editor.esm.js",
-  "unpkg": "dist/text-editor.min.js",
+  "main": "dist/gem-text-editor.ssr.js",
+  "browser": "dist/gem-text-editor.esm.js",
+  "module": "dist/gem-text-editor.esm.js",
+  "unpkg": "dist/gem-text-editor.min.js",
   "files": [
     "dist/*",
     "src/**/*.vue",
@@ -43,5 +42,17 @@
   },
   "engines": {
     "node": ">=8"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haicaodac/gem-text-editor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haicaodac/gem-text-editor/issues"
+  },
+  "homepage": "https://github.com/haicaodac/gem-text-editor#readme",
+  "description": ""
 }

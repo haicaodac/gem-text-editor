@@ -5,7 +5,7 @@
       data-type="color"
       class="gte_btn gte_item-btn gte_editor_insert_color"
       :class="{'gte_active': statusShowPopup}"
-      @click.stop.prevent="showPopup()"
+      @click="showPopup()"
     >
       <svg viewBox="0 0 512 512">
         <path
@@ -19,7 +19,6 @@
       :color="colorText"
       @setColorTextBoard="setColorText"
       @close="closePopup"
-      @clearColorTextBoard="clearColorText"
     />
   </div>
 </template>
@@ -56,20 +55,12 @@ export default {
     this.colorText = this.$props.color;
   },
   methods: {
-    clearColorText(type) {
-      if (type == "clear_color") {
-        this.$emit("clearFormatText", {
-          type: "foreColor"
-        });
-      }
-    },
-    setColorText(value) {
+    setColorText(color) {
       var $el = document.querySelector(".gte_editor_insert_color");
       this.$emit("statusFormatText", {
         type: "foreColor",
         $el: $el,
-        color: value,
-        value: value.color_code
+        value: color
       });
       this.statusShowPopup = false;
     },

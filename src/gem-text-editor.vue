@@ -1,3 +1,27 @@
+
+<template>
+  <div class="gte_editor">
+    <div v-if="optionsTypes && optionsTypes.length" class="gte_editor-item">
+      <component
+        :is="renderControl(option.type)"
+        v-for="option in optionsTypes"
+        :key="option.type"
+        v-bind="option"
+        @statusFormatText="setFormatText"
+      />
+    </div>
+    <div
+      class="gte_editor_content"
+      contenteditable="true"
+      @blur="savePosition"
+      @keyup="onKeyup"
+      @mouseup="mouseup"
+      v-html="val"
+      :style="{'max-height': initSettings.maxHeight, 'min-height': initSettings.minHeight}"
+    />
+  </div>
+</template>
+
 <script>
 import FormatBold from "./items/FormatBold.vue";
 import FormatItalic from "./items/FormatItalic.vue";
@@ -12,7 +36,7 @@ import InsertLink from "./items/InsertLink.vue";
 import UploadImage from "./items/UploadImage.vue";
 
 export default {
-  name: "TextEditor", // vue component name
+  name: "GemTextEditor", // vue component name
   components: {
     FormatBold,
     FormatItalic,
@@ -29,42 +53,7 @@ export default {
     init: {
       type: Object,
       default() {
-        return {
-          options: [
-            "bold",
-            "italic",
-            "underline",
-            "justifyLeft",
-            "justifyCenter",
-            "justifyRight",
-            "insertOrderedList",
-            "insertUnorderedList",
-            "foreColor",
-            "createlink",
-            "image"
-          ]
-        };
-      }
-    },
-    maxHeight: {
-      type: String, // 100px
-      default: "200px"
-    },
-    minHeight: {
-      type: String, // 100px
-      default: "200px"
-    },
-    hide: {
-      type: Boolean,
-      default() {
-        return true;
-      }
-    },
-    value: {
-      type: String,
-      required: false,
-      default() {
-        return "";
+        return {};
       }
     },
     readonly: {
@@ -81,6 +70,29 @@ export default {
   },
   data() {
     return {
+      initSettings: {
+        options: [
+          "bold",
+          "italic",
+          "underline",
+          "justifyLeft",
+          "justifyCenter",
+          "justifyRight",
+          "orderedList",
+          "unorderedList",
+          "color",
+          "link"
+          // "image"
+        ],
+        minHeight: {
+          type: String, // 200px
+          default: "200px"
+        },
+        maxHeight: {
+          type: String, // 200px
+          default: "200px"
+        }
+      },
       val: "",
       sel: "",
       savedSel: "",
@@ -92,15 +104,17 @@ export default {
     };
   },
   mounted() {
+    // Merge init data
+    this.initSettings = Object.assign({}, this.initSettings, this.init);
     this.val = this.value;
     let optionsValue = [];
-    if (this.init.options && this.init.options.length) {
-      for (let index = 0; index < this.init.options.length; index++) {
-        let item = this.init.options[index];
+    if (this.initSettings.options && this.initSettings.options.length) {
+      for (let index = 0; index < this.initSettings.options.length; index++) {
+        let item = this.initSettings.options[index];
         optionsValue[index] = {
           type: item
         };
-        if (item == "foreColor") {
+        if (item == "color") {
           optionsValue[index]["color"] = "#000";
         }
       }
@@ -109,6 +123,13 @@ export default {
     document.execCommand("defaultParagraphSeparator", false, "div");
   },
   methods: {
+    /**
+     * Get the content html in the editor
+     */
+    getContent() {
+      let content = document.querySelector(".gte_editor_content").innerHTML;
+      return content;
+    },
     savePosition() {
       this.setValueIframe();
       this.savedSel = "";
@@ -116,14 +137,9 @@ export default {
       // this.restoreSelection(savedSel);
     },
     setValueIframe() {
-      var divContent = document.createElement("div");
-      divContent.className = "gt_box-desc";
-      divContent.innerHTML = document.querySelector(
-        ".gte_editor_content"
-      ).innerHTML;
-
-      this.$emit("onChange", this.id, divContent.outerHTML);
-      this.$emit("inpput", divContent.outerHTML);
+      let content = this.getContent();
+      this.$emit("onChange", this.id, content);
+      this.$emit("inpput", content);
     },
     renderControl(option) {
       switch (option) {
@@ -139,13 +155,13 @@ export default {
           return FormatAlignRight;
         case "justifyCenter":
           return FormatAlignCenter;
-        case "foreColor":
+        case "color":
           return FormatColorText;
-        case "insertOrderedList":
+        case "orderedList":
           return FormatOrderedList;
-        case "insertUnorderedList":
+        case "unorderedList":
           return FormatUnorderedList;
-        case "createlink":
+        case "link":
           return InsertLink;
         case "image":
           return UploadImage;
@@ -180,13 +196,13 @@ export default {
       if (this.currentFormat && this.currentFormat.length > 0) {
         for (let index = 0; index < this.currentFormat.length; index++) {
           let item = this.currentFormat[index];
-          if (item.type == "foreColor") {
+          if (item.type == "color") {
             var selected = window.getSelection().focusNode.parentNode;
             var color = selected.getAttribute("color");
 
             if (color) {
               this.optionsTypes = this.optionsTypes.map(function(option) {
-                if (option.type == "foreColor") {
+                if (option.type == "color") {
                   if (option.color) {
                     option.color = color;
                   }
@@ -211,17 +227,28 @@ export default {
       let urlInsert = `<a href="${data.url}" target="${data.target}" title="${data.title}">${data.text}</a>`;
       document.execCommand("insertHTML", false, urlInsert);
     },
-    clearFormatText() {
-      let $content = document.querySelector(".gte_editor_content");
-      $content.focus();
-      document.execCommand("forecolor", false, "#333333");
-      this.setValueIframe();
+    insertImage(imageObj) {
+      if (!imageObj || !imageObj.src) {
+        console.error(
+          "When adding an image, the object requires the src attribute"
+        );
+        return;
+      }
+      let src = imageObj.src;
+      let alt = imageObj.alt || "";
+      let title = imageObj.title || "";
+
+      let baseImg = `<img src="${src}" alt="${alt}" title="${title}" height="" width="" >`;
+      document.execCommand("insertHTML", false, baseImg);
     },
     setFormatText(obj) {
       let $content = document.querySelector(".gte_editor_content");
       $content.focus();
       if (obj.type == "createLink") {
         this.insertLink(obj);
+        return;
+      } else if (obj.type == "uploadImage") {
+        this.$emit("uploadImages", obj.files);
         return;
       }
 
@@ -323,30 +350,6 @@ export default {
 };
 </script>
 
-<template>
-  <div class="gte_editor">
-    <div v-if="optionsTypes && optionsTypes.length" class="gte_editor-item">
-      <component
-        :is="renderControl(option.type)"
-        v-for="option in optionsTypes"
-        :key="option.type"
-        v-bind="option"
-        @statusFormatText="setFormatText"
-        @clearFormatText="clearFormatText"
-      />
-    </div>
-    <div
-      class="gte_editor_content"
-      contenteditable="true"
-      @blur="savePosition"
-      @keyup="onKeyup"
-      @mouseup="mouseup"
-      v-html="val"
-      :style="{'max-height': maxHeight, 'min-height': minHeight}"
-    />
-  </div>
-</template>
-
 <style lang="scss">
 .gte_editor {
   width: 100%;
@@ -358,15 +361,12 @@ export default {
     background: #f9fafb;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+
     .gte_item,
     .gte_item-btn {
       position: relative;
       border: none;
       background: transparent;
-      height: auto;
-      padding: 0;
-    }
-    .gte_item {
       display: inline-flex;
       justify-content: center;
       align-items: center;
@@ -374,6 +374,7 @@ export default {
       width: 34px;
       height: 34px;
       margin: 2px;
+      padding: 0;
       border-radius: 5px;
       transition: all 0.25s;
       svg {
@@ -386,6 +387,10 @@ export default {
       &:hover {
         background: #e8ecf0;
       }
+    }
+    .gte_item-btn {
+      padding: 0;
+      margin: 0;
     }
   }
   .gte_editor_content {
@@ -402,6 +407,19 @@ export default {
     border: none;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.1);
+      outline: 1px solid rgba(0, 0, 0, 0.1);
+    }
   }
 
   .gte_btn {

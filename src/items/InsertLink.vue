@@ -4,7 +4,7 @@
       type="button"
       class="gte_btn gte_item-btn gte_editor_insert_link"
       :class="{'gte_active': statusShowPopup}"
-      @click.stop.prevent="showPopup()"
+      @click="showPopup()"
     >
       <svg viewBox="0 0 512 512">
         <path
