@@ -1,7 +1,11 @@
 
 <template>
   <div class="gte_editor">
-    <div v-if="optionsTypes && optionsTypes.length" class="gte_editor-item">
+    <div
+      v-if="optionsTypes && optionsTypes.length"
+      class="gte_editor-item"
+      :class="{'gte_editor-item--sticky': initSettings.stickyTool}"
+    >
       <component
         :is="renderControl(option.type)"
         v-for="option in optionsTypes"
@@ -11,12 +15,12 @@
       />
     </div>
     <div
+      ref="editorContent"
       class="gte_editor_content"
       contenteditable="true"
       @blur="savePosition"
       @keyup="onKeyup"
       @mouseup="mouseup"
-      v-html="val"
       :style="{'max-height': initSettings.maxHeight, 'min-height': initSettings.minHeight}"
     />
   </div>
@@ -56,16 +60,9 @@ export default {
         return {};
       }
     },
-    readonly: {
-      type: Boolean,
-      required: false,
-      default() {
-        return false;
-      }
-    },
-    screens: {
-      type: [Array, Object],
-      default: () => []
+    value: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -91,22 +88,36 @@ export default {
         maxHeight: {
           type: String, // 200px
           default: "200px"
-        }
+        },
+        stickyTool: false
       },
+
       val: "",
       sel: "",
       savedSel: "",
       ranges: [],
 
-      editorProps: {},
       optionsTypes: [],
       currentFormat: []
     };
   },
+  watch: {
+    value(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        let content = this.getContent();
+        if (newVal !== content) {
+          this.$nextTick(() => {
+            this.formatInitContent(newVal);
+          });
+        }
+      }
+    }
+  },
   mounted() {
     // Merge init data
     this.initSettings = Object.assign({}, this.initSettings, this.init);
-    this.val = this.value;
+    this.formatInitContent(this.value);
+
     let optionsValue = [];
     if (this.initSettings.options && this.initSettings.options.length) {
       for (let index = 0; index < this.initSettings.options.length; index++) {
@@ -124,10 +135,24 @@ export default {
   },
   methods: {
     /**
+     * Format the input data to the correct editor
+     */
+    formatInitContent(newVal) {
+      this.val = newVal;
+      let $content = this.$refs.editorContent;
+      if ($content) {
+        $content.innerHTML = this.val;
+      }
+    },
+    /**
      * Get the content html in the editor
      */
     getContent() {
-      let content = document.querySelector(".gte_editor_content").innerHTML;
+      let content = "";
+      let $content = this.$refs.editorContent;
+      if ($content) {
+        content = $content.innerHTML;
+      }
       return content;
     },
     savePosition() {
@@ -138,8 +163,8 @@ export default {
     },
     setValueIframe() {
       let content = this.getContent();
-      this.$emit("onChange", this.id, content);
-      this.$emit("inpput", content);
+      this.$emit("onChange", content);
+      this.$emit("input", content);
     },
     renderControl(option) {
       switch (option) {
@@ -242,7 +267,7 @@ export default {
       document.execCommand("insertHTML", false, baseImg);
     },
     setFormatText(obj) {
-      let $content = document.querySelector(".gte_editor_content");
+      let $content = this.$refs.editorContent;
       $content.focus();
       if (obj.type == "createLink") {
         this.insertLink(obj);
@@ -362,6 +387,10 @@ export default {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 
+    .gte_editor-item--sticky {
+      position: sticky;
+      top: 0;
+    }
     .gte_item,
     .gte_item-btn {
       position: relative;

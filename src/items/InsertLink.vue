@@ -2,6 +2,7 @@
   <div data-type="link" class="gte_item">
     <button
       type="button"
+      ref="editorBtnLink"
       class="gte_btn gte_item-btn gte_editor_insert_link"
       :class="{'gte_active': statusShowPopup}"
       @click="showPopup()"
@@ -53,12 +54,7 @@ export default {
   },
   methods: {
     submitForm(data) {
-      // var data = {
-      //   title: this.valTitle,
-      //   url: this.valUrl,
-      //   target: this.valTarget,
-      // };
-      let $el = document.querySelector(".gte_editor_insert_link");
+      let $el = this.$refs.editorBtnLink;
       this.$emit("statusFormatText", {
         type: "createLink",
         $el: $el,

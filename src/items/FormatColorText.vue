@@ -3,6 +3,7 @@
     <button
       type="button"
       data-type="color"
+      ref="editorBtnColor"
       class="gte_btn gte_item-btn gte_editor_insert_color"
       :class="{'gte_active': statusShowPopup}"
       @click="showPopup()"
@@ -56,7 +57,7 @@ export default {
   },
   methods: {
     setColorText(color) {
-      var $el = document.querySelector(".gte_editor_insert_color");
+      var $el = this.$refs.editorBtnColor;
       this.$emit("statusFormatText", {
         type: "foreColor",
         $el: $el,

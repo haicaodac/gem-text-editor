@@ -2,6 +2,7 @@
   <div data-type="image" class="gte_item">
     <button
       type="button"
+      ref="editorBtnImage"
       class="gte_btn gte_item-btn gte_editor_insert_image"
       :class="{'gte_active': statusShowPopup}"
       @click="showPopup()"
@@ -47,7 +48,7 @@ export default {
   },
   methods: {
     submitForm(data) {
-      let $el = document.querySelector(".gte_editor_insert_image");
+      let $el = this.$refs.editorBtnImage;
       this.$emit("statusFormatText", {
         type: "uploadImage",
         $el: $el,

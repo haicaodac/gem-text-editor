@@ -24,7 +24,7 @@
             class="gte_popup_image-preview-image"
             :class="{'gte_popup_image-preview-image-multi': files.length >= 2}"
           >
-            <img v-for="file in files" :key="file" :src="file.src" :title="file.name" />
+            <img v-for="file in files" :key="file.src" :src="file.src" :title="file.name" />
           </div>
         </div>
         <span

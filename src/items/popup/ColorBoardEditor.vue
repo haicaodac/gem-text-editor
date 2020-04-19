@@ -196,7 +196,6 @@ export default {
   methods: {
     checkClosePopup() {
       let $target = event.target;
-      console.log("$target: ", $target);
       if (
         $target &&
         ($target.closest(".gte_popup_color") ||
@@ -208,10 +207,13 @@ export default {
     },
     setColor(color) {
       let newColor = "";
-      let $editor = document.querySelector(".gte_editor_content");
+      let $editor = event.target.closest(".gte_editor");
       if ($editor) {
-        const style = getComputedStyle($editor);
-        newColor = style.color;
+        let $editContent = $editor.querySelector(".gte_editor_content");
+        if ($editContent) {
+          const style = getComputedStyle($editContent);
+          newColor = style.color;
+        }
       }
       if (color.color_code != "Clear Color") {
         newColor = color.color_code;

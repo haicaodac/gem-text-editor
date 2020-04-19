@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <GemTextEditor ref="editor" @uploadImages="uploadImages" />
+    <GemTextEditor ref="editor" v-model="body" :init="initSettings" @uploadImages="uploadImages" />
     <button @click="getContent">Get Content</button>
   </div>
 </template>
@@ -24,13 +24,22 @@ export default Vue.extend({
           "justifyLeft",
           "justifyCenter",
           "justifyRight",
-          "insertOrderedList",
-          "insertUnorderedList",
-          "foreColor",
-          "createlink"
-        ]
-      }
+          "orderedList",
+          "unorderedList",
+          "color",
+          "link",
+          "image"
+        ],
+        maxHeight: "unset",
+        stickyTool: false
+      },
+      body: "Hello word!"
     };
+  },
+  watch: {
+    body(newVal) {
+      console.log(newVal);
+    }
   },
   methods: {
     uploadImages(images) {
@@ -42,11 +51,12 @@ export default Vue.extend({
           alt: "atl",
           title: "title"
         });
-      });
+      }, 2000);
     },
     getContent() {
       let content = this.$refs.editor.getContent();
-      console.log("content: ", content);
+      console.log(content);
+      // this.body = "ABC";
     }
   }
 });
